@@ -18,18 +18,21 @@ export const uploadScreenshot = async (
     if (!req.file) {
       return res.status(400).json({
         success: false,
-        message: "Screenshot file is required",
+        message:
+          "Screenshot file is required",
       });
     }
 
     const memory =
       await createScreenshotMemory(
-        req.file
+        req.file,
+        req.user._id
       );
 
     return res.status(201).json({
       success: true,
-      message: "Screenshot memory created",
+      message:
+        "Screenshot memory created",
       data: memory,
     });
 
@@ -41,6 +44,7 @@ export const uploadScreenshot = async (
 
     return res.status(500).json({
       success: false,
+
       message:
         error.message ||
         "Failed to create screenshot memory",
@@ -50,7 +54,7 @@ export const uploadScreenshot = async (
 
 
 // ==========================================
-// CREATE REEL MEMORY
+// CREATE REEL
 // ==========================================
 
 export const createReel = async (
@@ -60,19 +64,24 @@ export const createReel = async (
   try {
     const { url } = req.body;
 
-    if (!url) {
+    if (!url?.trim()) {
       return res.status(400).json({
         success: false,
-        message: "Reel URL is required",
+        message:
+          "Reel URL is required",
       });
     }
 
     const memory =
-      await createReelMemory(url);
+      await createReelMemory(
+        url.trim(),
+        req.user._id
+      );
 
     return res.status(201).json({
       success: true,
-      message: "Reel memory created",
+      message:
+        "Reel memory created",
       data: memory,
     });
 
@@ -84,6 +93,7 @@ export const createReel = async (
 
     return res.status(500).json({
       success: false,
+
       message:
         error.message ||
         "Failed to create Reel memory",
@@ -93,7 +103,7 @@ export const createReel = async (
 
 
 // ==========================================
-// GET ALL MEMORIES
+// GET USER'S MEMORIES
 // ==========================================
 
 export const getAllMemories = async (
@@ -102,7 +112,9 @@ export const getAllMemories = async (
 ) => {
   try {
     const memories =
-      await getMemories();
+      await getMemories(
+        req.user._id
+      );
 
     return res.status(200).json({
       success: true,
@@ -118,6 +130,7 @@ export const getAllMemories = async (
 
     return res.status(500).json({
       success: false,
+
       message:
         error.message ||
         "Failed to fetch memories",
@@ -127,7 +140,7 @@ export const getAllMemories = async (
 
 
 // ==========================================
-// DELETE MEMORY
+// DELETE USER'S MEMORY
 // ==========================================
 
 export const removeMemory = async (
@@ -138,11 +151,16 @@ export const removeMemory = async (
     const { id } = req.params;
 
     const memory =
-      await deleteMemory(id);
+      await deleteMemory(
+        id,
+        req.user._id
+      );
 
     return res.status(200).json({
       success: true,
-      message: "Memory deleted",
+      message:
+        "Memory deleted",
+
       data: {
         id: memory._id,
       },
@@ -155,16 +173,19 @@ export const removeMemory = async (
     );
 
     if (
-      error.message === "Memory not found"
+      error.message ===
+      "Memory not found"
     ) {
       return res.status(404).json({
         success: false,
-        message: "Memory not found",
+        message:
+          "Memory not found",
       });
     }
 
     return res.status(500).json({
       success: false,
+
       message:
         error.message ||
         "Failed to delete memory",

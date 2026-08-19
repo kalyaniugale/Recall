@@ -1,107 +1,238 @@
-const API_BASE_URL = "http://localhost:5000/api/v1";
+import {
+  getToken,
+} from "../utils/auth";
 
 
-export const getMemories = async () => {
-  const response = await fetch(
-    `${API_BASE_URL}/memories`
-  );
+const API_BASE_URL =
+  "http://localhost:5000/api/v1";
 
-  const result = await response.json();
 
-  if (!response.ok) {
+// ==========================================
+// AUTH HEADERS
+// ==========================================
+
+const getAuthHeaders = () => {
+
+  const token =
+    getToken();
+
+  if (!token) {
+
     throw new Error(
-      result.message || "Failed to fetch memories"
+      "You are not logged in."
     );
+
   }
 
-  return result.data;
+  return {
+    Authorization:
+      `Bearer ${token}`,
+  };
 };
 
 
-export const uploadScreenshot = async (file) => {
-  const formData = new FormData();
+// ==========================================
+// GET MEMORIES
+// ==========================================
 
-  formData.append("screenshot", file);
+export const getMemories =
+  async () => {
 
-  const response = await fetch(
-    `${API_BASE_URL}/memories/screenshots`,
-    {
-      method: "POST",
-      body: formData,
+    const response =
+      await fetch(
+        `${API_BASE_URL}/memories`,
+        {
+          headers: {
+            ...getAuthHeaders(),
+          },
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        result.message ||
+        "Failed to fetch memories"
+      );
+
     }
-  );
 
-  const result = await response.json();
 
-  if (!response.ok) {
-    throw new Error(
-      result.message || "Upload failed"
+    return result.data;
+  };
+
+
+// ==========================================
+// UPLOAD SCREENSHOT
+// ==========================================
+
+export const uploadScreenshot =
+  async (file) => {
+
+    const formData =
+      new FormData();
+
+
+    formData.append(
+      "screenshot",
+      file
     );
-  }
 
-  return result.data;
-};
 
-export const saveReel = async (url) => {
-  const response = await fetch(
-    `${API_BASE_URL}/memories/reels`,
-    {
-      method: "POST",
+    const response =
+      await fetch(
+        `${API_BASE_URL}/memories/screenshots`,
+        {
+          method: "POST",
 
-      headers: {
-        "Content-Type": "application/json",
-      },
+          headers: {
+            ...getAuthHeaders(),
+          },
 
-      body: JSON.stringify({
-        url,
-      }),
+          body: formData,
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        result.message ||
+        "Upload failed"
+      );
+
     }
-  );
-
-  const result = await response.json();
-
-  if (!response.ok) {
-    throw new Error(
-      result.message ||
-      "Failed to save Reel"
-    );
-  }
-
-  return result.data;
-};
-
-export const searchMemories = async (query) => {
-  const response = await fetch(
-    `${API_BASE_URL}/search?q=${encodeURIComponent(query)}`
-  );
-
-  const result = await response.json();
-
-  if (!response.ok) {
-    throw new Error(
-      result.message || "Search failed"
-    );
-  }
-
-  return result.data;
-};
 
 
-export const deleteMemory = async (memoryId) => {
-  const response = await fetch(
-    `${API_BASE_URL}/memories/${memoryId}`,
-    {
-      method: "DELETE",
+    return result.data;
+  };
+
+
+// ==========================================
+// SAVE REEL
+// ==========================================
+
+export const saveReel =
+  async (url) => {
+
+    const response =
+      await fetch(
+        `${API_BASE_URL}/memories/reels`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+
+            ...getAuthHeaders(),
+          },
+
+          body: JSON.stringify({
+            url,
+          }),
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        result.message ||
+        "Failed to save Reel"
+      );
+
     }
-  );
 
-  const result = await response.json();
 
-  if (!response.ok) {
-    throw new Error(
-      result.message || "Delete failed"
-    );
-  }
+    return result.data;
+  };
 
-  return result;
-};
+
+// ==========================================
+// SEARCH MEMORIES
+// ==========================================
+
+export const searchMemories =
+  async (query) => {
+
+    const response =
+      await fetch(
+        `${API_BASE_URL}/search?q=${encodeURIComponent(
+          query
+        )}`,
+        {
+          headers: {
+            ...getAuthHeaders(),
+          },
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        result.message ||
+        "Search failed"
+      );
+
+    }
+
+
+    return result.data;
+  };
+
+
+// ==========================================
+// DELETE MEMORY
+// ==========================================
+
+export const deleteMemory =
+  async (memoryId) => {
+
+    const response =
+      await fetch(
+        `${API_BASE_URL}/memories/${memoryId}`,
+        {
+          method: "DELETE",
+
+          headers: {
+            ...getAuthHeaders(),
+          },
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        result.message ||
+        "Delete failed"
+      );
+
+    }
+
+
+    return result;
+  };

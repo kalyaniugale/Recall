@@ -40,3 +40,12 @@ temp/
 
 # OS/editor files
 .DS_Store
+
+# Temporary processing files
+server/temp/
+
+# Local Chroma utility/admin script
+server/chroma-admin.js
+
+# OCR language data
+server/eng.traineddata

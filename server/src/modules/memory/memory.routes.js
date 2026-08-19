@@ -2,13 +2,19 @@ import express from "express";
 import multer from "multer";
 
 import {
+  requireAuth,
+} from "../../middleware/auth.middleware.js";
+
+import {
   uploadScreenshot,
   createReel,
   getAllMemories,
   removeMemory,
 } from "./memory.controller.js";
 
-const router = express.Router();
+
+const router =
+  express.Router();
 
 
 // ==========================================
@@ -16,26 +22,35 @@ const router = express.Router();
 // ==========================================
 
 const upload = multer({
-  storage: multer.memoryStorage(),
+  storage:
+    multer.memoryStorage(),
 
   limits: {
-    fileSize: 10 * 1024 * 1024,
+    fileSize:
+      10 * 1024 * 1024,
   },
 });
+
+
+// ==========================================
+// AUTHENTICATION
+// ==========================================
+
+// Every route below requires JWT
+
+router.use(requireAuth);
 
 
 // ==========================================
 // ROUTES
 // ==========================================
 
-// Get all memories
 router.get(
   "/",
   getAllMemories
 );
 
 
-// Upload screenshot
 router.post(
   "/screenshots",
   upload.single("screenshot"),
@@ -43,14 +58,12 @@ router.post(
 );
 
 
-// Save Instagram Reel
 router.post(
   "/reels",
   createReel
 );
 
 
-// Delete memory
 router.delete(
   "/:id",
   removeMemory

@@ -12,92 +12,203 @@ import {
 
 
 const MAX_DISTANCE =
-  Number(process.env.SEARCH_MAX_DISTANCE) || 0.75;
+  Number(
+    process.env.SEARCH_MAX_DISTANCE
+  ) || 0.75;
 
 
-export const searchMemories = async (query, limit = 5) => {
-  if (!query || !query.trim()) {
-    throw new Error("Search query is required");
-  }
+// ==========================================
+// SEARCH
+// ==========================================
 
-  // 1. Embed user's query
-  const queryEmbedding = await generateEmbedding(
-    query.trim()
-  );
+export const searchMemories =
+  async (
+    query,
+    userId,
+    limit = 5
+  ) => {
 
-  // 2. Search Chroma
-  const vectorResults = await searchMemoryVectors({
-    queryEmbedding,
-    limit,
-  });
+    if (
+      !query ||
+      !query.trim()
+    ) {
+      throw new Error(
+        "Search query is required"
+      );
+    }
 
-  const ids = vectorResults.ids?.[0] || [];
-  const distances =  vectorResults.distances?.[0] || [];
 
-  if (ids.length === 0) {
-    return [];
-  }
-   console.log("Chroma raw results:");
+    // ------------------------------------------
+    // 1. Embed user's query
+    // ------------------------------------------
 
-ids.forEach((id, index) => {
-  console.log({
-    id,
-    distance: distances[index],
-  });
-});
-  // 3. Keep only results that are relevant enough
-  const relevantResults = ids
-    .map((id, index) => ({
-      id,
-      distance: distances[index],
-    }))
-    .filter(
-      (result) =>
-        result.distance !== undefined &&
-        result.distance <= MAX_DISTANCE &&
-        mongoose.Types.ObjectId.isValid(result.id)
+    const queryEmbedding =
+      await generateEmbedding(
+        query.trim()
+      );
+
+
+    // ------------------------------------------
+    // 2. Search ONLY this user's Chroma vectors
+    // ------------------------------------------
+
+    const vectorResults =
+      await searchMemoryVectors({
+        queryEmbedding,
+
+        userId,
+
+        limit,
+      });
+
+
+    const ids =
+      vectorResults.ids?.[0] ||
+      [];
+
+
+    const distances =
+      vectorResults
+        .distances?.[0] ||
+      [];
+
+
+    if (
+      ids.length === 0
+    ) {
+      return [];
+    }
+
+
+    console.log(
+      "Chroma raw results:"
     );
 
-  if (relevantResults.length === 0) {
-    return [];
-  }
 
-  // 4. Get MongoDB IDs
-  const validIds = relevantResults.map(
-    (result) => result.id
-  );
+    ids.forEach(
+      (id, index) => {
 
-  // 5. Fetch actual memories
-  const memories = await Memory.find({
-    _id: {
-      $in: validIds,
-    },
-  }).lean();
+        console.log({
+          id,
 
-  // 6. Build lookup map
-  const memoryMap = new Map(
-    memories.map((memory) => [
-      memory._id.toString(),
-      memory,
-    ])
-  );
+          distance:
+            distances[index],
+        });
 
-  // 7. Preserve Chroma ranking
-  const rankedResults = relevantResults
-    .map((result) => {
-      const memory =
-        memoryMap.get(result.id);
-        
-      if (!memory) {
-        return null;
       }
+    );
 
-      return {
-        memory,
-        distance: result.distance,
-      };
-    })
-    .filter(Boolean);
 
-  return rankedResults;
-};
+    // ------------------------------------------
+    // 3. Relevance threshold
+    // ------------------------------------------
+
+    const relevantResults =
+      ids
+        .map(
+          (id, index) => ({
+            id,
+
+            distance:
+              distances[index],
+          })
+        )
+        .filter(
+          (result) =>
+            result.distance !==
+              undefined &&
+
+            result.distance <=
+              MAX_DISTANCE &&
+
+            mongoose.Types
+              .ObjectId
+              .isValid(
+                result.id
+              )
+        );
+
+
+    if (
+      relevantResults.length ===
+      0
+    ) {
+      return [];
+    }
+
+
+    const validIds =
+      relevantResults.map(
+        (result) =>
+          result.id
+      );
+
+
+    // ------------------------------------------
+    // 4. MongoDB authorization check AGAIN
+    // ------------------------------------------
+    //
+    // Even though Chroma is already filtered,
+    // MongoDB also verifies ownership.
+    // ------------------------------------------
+
+    const memories =
+      await Memory.find({
+        _id: {
+          $in: validIds,
+        },
+
+        userId:
+          userId,
+      }).lean();
+
+
+    // ------------------------------------------
+    // 5. Lookup map
+    // ------------------------------------------
+
+    const memoryMap =
+      new Map(
+        memories.map(
+          (memory) => [
+            memory._id.toString(),
+            memory,
+          ]
+        )
+      );
+
+
+    // ------------------------------------------
+    // 6. Preserve semantic ranking
+    // ------------------------------------------
+
+    const rankedResults =
+      relevantResults
+        .map(
+          (result) => {
+
+            const memory =
+              memoryMap.get(
+                result.id
+              );
+
+
+            if (!memory) {
+              return null;
+            }
+
+
+            return {
+              memory,
+
+              distance:
+                result.distance,
+            };
+
+          }
+        )
+        .filter(Boolean);
+
+
+    return rankedResults;
+  };

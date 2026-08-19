@@ -1,12 +1,27 @@
 import express from "express";
 
 import {
+  requireAuth,
+} from "../../middleware/auth.middleware.js";
+
+import {
   search,
 } from "./search.controller.js";
 
 
-const router = express.Router();
+const router =
+  express.Router();
 
-router.get("/", search);
+
+router.use(
+  requireAuth
+);
+
+
+router.get(
+  "/",
+  search
+);
+
 
 export default router;

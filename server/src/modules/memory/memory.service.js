@@ -94,7 +94,8 @@ const uploadBufferToCloudinary = (buffer) => {
 // ======================================================
 
 export const createScreenshotMemory = async (
-  file
+  file,
+  userId
 ) => {
 
   // --------------------------------------------------
@@ -204,7 +205,7 @@ ${extractedText}
 
 
   // --------------------------------------------------
-  // 6. MongoDB
+  // 6. Save MongoDB memory
   // --------------------------------------------------
 
   console.log(
@@ -213,6 +214,12 @@ ${extractedText}
 
   const memory =
     await Memory.create({
+
+      // IMPORTANT:
+      // Every memory belongs to one user.
+
+      userId,
+
       type: "screenshot",
 
       asset: {
@@ -252,10 +259,15 @@ ${extractedText}
         importantText:
           understanding.importantText ||
           [],
+
+        transcript: "",
+
+        tags: [],
       },
 
       processing: {
         status: "READY",
+        error: null,
       },
     });
 
@@ -274,18 +286,54 @@ ${extractedText}
     "Indexing memory in Chroma..."
   );
 
-  await indexMemory({
-    memoryId:
-      memory._id.toString(),
+  try {
 
-    embedding,
+    await indexMemory({
+      memoryId:
+        memory._id.toString(),
 
-    document:
-      searchableText,
+      // IMPORTANT:
+      // Chroma also knows who owns the vector.
 
-    type:
-      memory.type,
-  });
+      userId:
+        userId.toString(),
+
+      embedding,
+
+      document:
+        searchableText,
+
+      type:
+        memory.type,
+    });
+
+  } catch (error) {
+
+    // Mongo memory exists but vector indexing failed.
+    // Remove Mongo memory to keep both stores consistent.
+
+    await Memory.findByIdAndDelete(
+      memory._id
+    );
+
+    // Also remove uploaded screenshot so we don't
+    // leave an unused Cloudinary asset.
+
+    if (uploadResult.public_id) {
+      try {
+        await cloudinary.uploader.destroy(
+          uploadResult.public_id
+        );
+      } catch (cleanupError) {
+        console.error(
+          "Cloudinary cleanup failed:",
+          cleanupError
+        );
+      }
+    }
+
+    throw error;
+  }
 
 
   console.log(
@@ -302,7 +350,8 @@ ${extractedText}
 // ======================================================
 
 export const createReelMemory = async (
-  url
+  url,
+  userId
 ) => {
 
   let workspace = null;
@@ -331,7 +380,9 @@ export const createReelMemory = async (
     );
 
     const metadata =
-      await resolveInstagramReel(url);
+      await resolveInstagramReel(
+        url
+      );
 
 
     console.log(
@@ -363,7 +414,8 @@ export const createReelMemory = async (
 
     const downloadResult =
       await downloadReel(
-        metadata.originalUrl || url
+        metadata.originalUrl ||
+        url
       );
 
 
@@ -480,14 +532,13 @@ export const createReelMemory = async (
       "Reel understanding completed"
     );
 
-
     console.log(
       understanding
     );
 
 
     // --------------------------------------------------
-    // 7. Build searchable representation
+    // 7. Searchable representation
     // --------------------------------------------------
 
     console.log(
@@ -563,103 +614,136 @@ ${transcription.transcript || ""}
     );
 
 
-// --------------------------------------------------
-// 9. Save MongoDB memory
-// --------------------------------------------------
+    // --------------------------------------------------
+    // 9. Save MongoDB memory
+    // --------------------------------------------------
 
-console.log(
-  "\nSTEP 9: Saving Reel to MongoDB..."
-);
+    console.log(
+      "\nSTEP 9: Saving Reel to MongoDB..."
+    );
 
-const memory = await Memory.create({
-  type: "reel",
 
-  // Original Instagram URL
-  originalUrl:
-    metadata.originalUrl || url,
+    const memory =
+      await Memory.create({
 
-  // IMPORTANT:
-  // We don't permanently store the downloaded Reel.
-  // reel.mp4/audio/frames are temporary.
-  //
-  // Therefore asset remains empty for Reel memories.
-  asset: {
-    url: "",
-    publicId: "",
-    mimeType: "",
-    size: null,
-  },
+        // IMPORTANT:
+        // Reel belongs to authenticated user.
 
-  content: {
-    // Text detected from Reel frames
-    extractedText:
-      onScreenText.join("\n"),
+        userId,
 
-    // Gemini visual understanding
-    visualDescription:
-      visualAnalysis.visualDescription || "",
+        type:
+          "reel",
 
-    title:
-      understanding.title || "",
+        originalUrl:
+          metadata.originalUrl ||
+          url,
 
-    summary:
-      understanding.summary || "",
 
-    topics:
-      understanding.topics || [],
+        // Downloaded video/audio/frames remain
+        // temporary and are not permanently stored.
 
-    recallIntents:
-      understanding.recallIntents || [],
+        asset: {
+          url: "",
+          publicId: "",
+          mimeType: "",
+          size: null,
+        },
 
-    importantText:
-      understanding.importantText || [],
 
-    // Whisper transcription
-    transcript:
-      transcription.transcript || "",
+        content: {
 
-    tags: [],
-  },
+          extractedText:
+            onScreenText.join(
+              "\n"
+            ),
 
-  // Reel-specific metadata
-  reel: {
-    platform:
-      metadata.platform || "instagram",
+          visualDescription:
+            visualAnalysis
+              .visualDescription ||
+            "",
 
-    shortcode:
-      metadata.shortcode || "",
+          title:
+            understanding.title ||
+            "",
 
-    username:
-      metadata.username || "",
+          summary:
+            understanding.summary ||
+            "",
 
-    caption:
-      metadata.caption || "",
+          topics:
+            understanding.topics ||
+            [],
 
-    // External Instagram thumbnail
-    thumbnailUrl:
-      metadata.thumbnailUrl || "",
+          recallIntents:
+            understanding
+              .recallIntents ||
+            [],
 
-    duration:
-      metadata.duration ?? null,
+          importantText:
+            understanding
+              .importantText ||
+            [],
 
-    language:
-      transcription.language || "",
+          transcript:
+            transcription.transcript ||
+            "",
 
-    languageProbability:
-      transcription.languageProbability ??
-      null,
-  },
+          tags: [],
+        },
 
-  processing: {
-    status: "READY",
-    error: null,
-  },
-});
 
-console.log(
-  "Reel saved:",
-  memory._id.toString()
-);
+        reel: {
+
+          platform:
+            metadata.platform ||
+            "instagram",
+
+          shortcode:
+            metadata.shortcode ||
+            "",
+
+          username:
+            metadata.username ||
+            "",
+
+          caption:
+            metadata.caption ||
+            "",
+
+          thumbnailUrl:
+            metadata.thumbnailUrl ||
+            "",
+
+          duration:
+            metadata.duration ??
+            null,
+
+          language:
+            transcription.language ||
+            "",
+
+          languageProbability:
+            transcription
+              .languageProbability ??
+            null,
+        },
+
+
+        processing: {
+          status:
+            "READY",
+
+          error:
+            null,
+        },
+      });
+
+
+    console.log(
+      "Reel saved:",
+      memory._id.toString()
+    );
+
 
     // --------------------------------------------------
     // 10. Chroma
@@ -677,6 +761,12 @@ console.log(
         memoryId:
           memory._id.toString(),
 
+        // IMPORTANT:
+        // Store owner in vector metadata.
+
+        userId:
+          userId.toString(),
+
         embedding,
 
         document:
@@ -690,8 +780,6 @@ console.log(
     } catch (error) {
 
       // Mongo was created but vector indexing failed.
-      // Remove Mongo document so databases remain
-      // consistent.
 
       await Memory.findByIdAndDelete(
         memory._id
@@ -721,6 +809,7 @@ console.log(
 
     return memory;
 
+
   } catch (error) {
 
     console.error(
@@ -730,10 +819,11 @@ console.log(
 
     throw error;
 
+
   } finally {
 
     // --------------------------------------------------
-    // 11. Clean temporary files
+    // 11. Clean temporary Reel files
     // --------------------------------------------------
 
     if (workspace) {
@@ -742,17 +832,22 @@ console.log(
         "\nCleaning Reel workspace..."
       );
 
+
       try {
 
         await cleanupReelWorkspace(
           workspace
         );
 
+
         console.log(
           "Temporary files removed"
         );
 
-      } catch (cleanupError) {
+
+      } catch (
+        cleanupError
+      ) {
 
         console.error(
           "Workspace cleanup failed:",
@@ -766,37 +861,46 @@ console.log(
 
 
 // ======================================================
-// GET MEMORIES
+// GET CURRENT USER'S MEMORIES
 // ======================================================
 
-export const getMemories = async () => {
+export const getMemories = async (
+  userId
+) => {
 
   const memories =
-    await Memory.find()
+    await Memory.find({
+      userId,
+    })
       .sort({
         createdAt: -1,
       });
+
 
   return memories;
 };
 
 
 // ======================================================
-// DELETE MEMORY
+// DELETE CURRENT USER'S MEMORY
 // ======================================================
 
 export const deleteMemory = async (
-  memoryId
+  memoryId,
+  userId
 ) => {
 
   // --------------------------------------------------
-  // 1. Find memory
+  // 1. Find memory AND verify ownership
   // --------------------------------------------------
 
   const memory =
-    await Memory.findById(
-      memoryId
-    );
+    await Memory.findOne({
+      _id:
+        memoryId,
+
+      userId,
+    });
 
 
   if (!memory) {
@@ -809,19 +913,26 @@ export const deleteMemory = async (
 
 
   // --------------------------------------------------
-  // 2. Delete Cloudinary asset if Recall owns it
+  // 2. Delete Cloudinary asset
   // --------------------------------------------------
 
-  if (memory.asset?.publicId) {
+  // Screenshots are stored in Cloudinary.
+  // Reels currently have no permanent asset.
+
+  if (
+    memory.asset?.publicId
+  ) {
 
     console.log(
       "Deleting Cloudinary asset..."
     );
 
 
-    await cloudinary.uploader.destroy(
-      memory.asset.publicId
-    );
+    await cloudinary
+      .uploader
+      .destroy(
+        memory.asset.publicId
+      );
 
   }
 
@@ -841,7 +952,7 @@ export const deleteMemory = async (
 
 
   // --------------------------------------------------
-  // 4. Delete Mongo document
+  // 4. Delete MongoDB memory
   // --------------------------------------------------
 
   console.log(
@@ -849,9 +960,12 @@ export const deleteMemory = async (
   );
 
 
-  await Memory.findByIdAndDelete(
-    memoryId
-  );
+  await Memory.deleteOne({
+    _id:
+      memory._id,
+
+    userId,
+  });
 
 
   console.log(

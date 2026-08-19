@@ -3,6 +3,17 @@ import mongoose from "mongoose";
 const memorySchema = new mongoose.Schema(
   {
     // ==================================================
+    // OWNER
+    // ==================================================
+
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+
+    // ==================================================
     // MEMORY TYPE
     // ==================================================
 
@@ -20,15 +31,6 @@ const memorySchema = new mongoose.Schema(
 
     // ==================================================
     // STORED ASSET
-    // ==================================================
-    // Files that Recall itself stores.
-    //
-    // Screenshot:
-    // asset.url -> Cloudinary screenshot
-    //
-    // Reel:
-    // currently we do NOT permanently store the video,
-    // so these fields can remain empty.
     // ==================================================
 
     asset: {
@@ -67,55 +69,46 @@ const memorySchema = new mongoose.Schema(
     // ==================================================
 
     content: {
-      // Exact OCR text from screenshots/images
       extractedText: {
         type: String,
         default: "",
       },
 
-      // Visual understanding generated from image/frames
       visualDescription: {
         type: String,
         default: "",
       },
 
-      // Human-readable generated title
       title: {
         type: String,
         default: "",
       },
 
-      // Semantic summary
       summary: {
         type: String,
         default: "",
       },
 
-      // Broad semantic concepts
       topics: {
         type: [String],
         default: [],
       },
 
-      // Example natural-language searches
       recallIntents: {
         type: [String],
         default: [],
       },
 
-      // Important exact terms/entities
       importantText: {
         type: [String],
         default: [],
       },
 
-      // Spoken content from video/audio
       transcript: {
         type: String,
         default: "",
       },
 
-      // Optional user/system tags
       tags: {
         type: [String],
         default: [],
@@ -123,7 +116,7 @@ const memorySchema = new mongoose.Schema(
     },
 
     // ==================================================
-    // REEL-SPECIFIC DATA
+    // REEL DATA
     // ==================================================
 
     reel: {
@@ -147,7 +140,6 @@ const memorySchema = new mongoose.Schema(
         default: "",
       },
 
-      // External Instagram preview image
       thumbnailUrl: {
         type: String,
         default: "",
@@ -170,7 +162,7 @@ const memorySchema = new mongoose.Schema(
     },
 
     // ==================================================
-    // PROCESSING STATE
+    // PROCESSING
     // ==================================================
 
     processing: {
@@ -197,22 +189,14 @@ const memorySchema = new mongoose.Schema(
 );
 
 
-// ==================================================
-// INDEXES
-// ==================================================
+// Most common query:
+// "give me this user's newest memories"
 
-// Recent memories
 memorySchema.index({
+  userId: 1,
   createdAt: -1,
 });
 
-// Useful later when authentication is added.
-// We can eventually add userId + indexes around it.
-
-
-// ==================================================
-// MODEL
-// ==================================================
 
 const Memory = mongoose.model(
   "Memory",
