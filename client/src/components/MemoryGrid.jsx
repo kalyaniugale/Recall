@@ -4,23 +4,27 @@ function MemoryGrid({
   memories,
   onDelete,
   onOpen,
+  variant = "default",
 }) {
   if (memories.length === 0) {
     return (
       <div className="empty-state">
-        <div>
-          <strong>No memories found</strong>
-          <p>
-            Try describing what you remember
-            differently.
-          </p>
-        </div>
+        <strong>
+          Nothing here yet.
+        </strong>
+
+        <p>
+          Keep something you don't want
+          to lose.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="memory-grid">
+    <div
+      className={`memory-grid memory-grid-${variant}`}
+    >
       {memories.map((memory) => (
         <MemoryCard
           key={memory._id}

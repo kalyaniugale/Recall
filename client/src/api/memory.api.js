@@ -42,6 +42,33 @@ export const uploadScreenshot = async (file) => {
   return result.data;
 };
 
+export const saveReel = async (url) => {
+  const response = await fetch(
+    `${API_BASE_URL}/memories/reels`,
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        url,
+      }),
+    }
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result.message ||
+      "Failed to save Reel"
+    );
+  }
+
+  return result.data;
+};
 
 export const searchMemories = async (query) => {
   const response = await fetch(

@@ -4,10 +4,10 @@ function SearchBar({
   onSearch,
   searching,
 }) {
-
-  const handleSubmit = (event) => {
+  const handleSubmit = (
+    event
+  ) => {
     event.preventDefault();
-
     onSearch();
   };
 
@@ -16,13 +16,18 @@ function SearchBar({
       className="search-bar"
       onSubmit={handleSubmit}
     >
+      <span className="search-icon">
+        ⌕
+      </span>
 
       <input
         type="text"
-        placeholder="Search anything you remember..."
+        placeholder="Try 'that reel about rate limiting'..."
         value={query}
         onChange={(event) =>
-          setQuery(event.target.value)
+          setQuery(
+            event.target.value
+          )
         }
       />
 
@@ -31,10 +36,9 @@ function SearchBar({
         disabled={searching}
       >
         {searching
-          ? "Searching..."
-          : "Search"}
+          ? "Looking..."
+          : "Find it"}
       </button>
-
     </form>
   );
 }

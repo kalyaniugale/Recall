@@ -4,6 +4,7 @@ node_modules/
 # Environment variables
 .env
 .env.*
+temp/
 
 # Allow example environment files
 !.env.example
@@ -17,3 +18,25 @@ dist/
 # OS
 .DS_Store
 Thumbs.db
+
+# Secrets
+.env
+.env.*
+
+# Keep example env file
+!.env.example
+
+# Dependencies
+node_modules/
+
+# Temporary/generated files
+temp/
+
+# OCR data
+*.traineddata
+
+# Logs
+*.log
+
+# OS/editor files
+.DS_Store

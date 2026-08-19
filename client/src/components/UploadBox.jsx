@@ -5,36 +5,48 @@ function UploadBox({
   uploading,
 }) {
   return (
-    <section className="upload-box">
+    <section className="capture-card">
 
-      <div>
-        <h2>Add a memory</h2>
+      <div className="capture-icon">
+        ▧
+      </div>
+
+      <div className="capture-card-copy">
+        <h3>
+          Screenshot
+        </h3>
 
         <p>
-          Upload a screenshot and Recall will
-          understand and index it.
+          Keep a screenshot and Recall
+          will remember what's inside.
         </p>
       </div>
 
       <input
+        className="file-input"
         type="file"
         accept="image/png,image/jpeg,image/webp"
         onChange={(event) =>
           setSelectedFile(
-            event.target.files?.[0] || null
+            event.target.files?.[0] ||
+              null
           )
         }
       />
 
       <button
+        className="capture-action"
         onClick={onUpload}
         disabled={
-          !selectedFile || uploading
+          !selectedFile ||
+          uploading
         }
       >
         {uploading
-          ? "Processing..."
-          : "Upload Screenshot"}
+          ? "Keeping it safe..."
+          : selectedFile
+          ? "Keep screenshot"
+          : "Choose screenshot"}
       </button>
 
     </section>

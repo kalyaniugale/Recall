@@ -4,6 +4,11 @@ function MemoryModal({
 }) {
   if (!memory) return null;
 
+  const previewUrl =
+    memory.type === "reel"
+      ? memory.reel?.thumbnailUrl
+      : memory.asset?.url;
+
   return (
     <div
       className="modal-backdrop"
@@ -18,21 +23,33 @@ function MemoryModal({
         <button
           className="modal-close"
           onClick={onClose}
+          aria-label="Close"
         >
           ×
         </button>
 
-        <div className="modal-image">
-          <img
-            src={memory.asset?.url}
-            alt={
-              memory.content?.title ||
-              "Memory"
-            }
-          />
-        </div>
+        {/* =========================
+            PREVIEW
+        ========================== */}
+
+        {previewUrl && (
+          <div className="modal-image">
+            <img
+              src={previewUrl}
+              alt={
+                memory.content?.title ||
+                "Memory"
+              }
+            />
+          </div>
+        )}
+
+        {/* =========================
+            DETAILS
+        ========================== */}
 
         <div className="modal-details">
+
           <span className="memory-badge">
             {memory.type}
           </span>
@@ -42,13 +59,23 @@ function MemoryModal({
               "Untitled Memory"}
           </h2>
 
+          {/* Reel creator */}
+          {memory.type === "reel" &&
+            memory.reel?.username && (
+              <p className="reel-creator">
+                {memory.reel.username}
+              </p>
+            )}
+
           {memory.content?.summary && (
             <p>
               {memory.content.summary}
             </p>
           )}
 
-          {memory.content?.topics?.length > 0 && (
+          {/* Topics */}
+          {memory.content?.topics?.length >
+            0 && (
             <div className="topic-list">
               {memory.content.topics.map(
                 (topic) => (
@@ -60,12 +87,29 @@ function MemoryModal({
             </div>
           )}
 
+          {/* =========================
+              REEL ACTION
+          ========================== */}
+
+          {memory.type === "reel" &&
+            memory.originalUrl && (
+              <a
+                href={memory.originalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="reel-open-button"
+              >
+                Watch original Reel ↗
+              </a>
+            )}
+
           <small>
             Saved{" "}
             {new Date(
               memory.createdAt
             ).toLocaleString()}
           </small>
+
         </div>
       </div>
     </div>
