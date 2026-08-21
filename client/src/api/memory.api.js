@@ -2,9 +2,7 @@ import {
   getToken,
 } from "../utils/auth";
 
-
-const API_BASE_URL =
-  "http://localhost:5000/api/v1";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 
 // ==========================================
@@ -16,18 +14,92 @@ const getAuthHeaders = () => {
   const token =
     getToken();
 
+
   if (!token) {
 
+    // Tell App.jsx that the session
+    // is no longer valid.
+
+    window.dispatchEvent(
+      new Event(
+        "recall:unauthorized"
+      )
+    );
+
+
     throw new Error(
-      "You are not logged in."
+      "Your session has expired. Please sign in again."
     );
 
   }
+
 
   return {
     Authorization:
       `Bearer ${token}`,
   };
+};
+
+
+// ==========================================
+// RESPONSE HANDLER
+// ==========================================
+
+const handleResponse = async (
+  response,
+  fallbackMessage
+) => {
+
+  let result;
+
+
+  try {
+
+    result =
+      await response.json();
+
+  } catch {
+
+    result = {};
+
+  }
+
+
+  // ========================================
+  // JWT INVALID / EXPIRED
+  // ========================================
+
+  if (response.status === 401) {
+
+    window.dispatchEvent(
+      new Event(
+        "recall:unauthorized"
+      )
+    );
+
+
+    throw new Error(
+      "Your session has expired. Please sign in again."
+    );
+
+  }
+
+
+  // ========================================
+  // OTHER API ERROR
+  // ========================================
+
+  if (!response.ok) {
+
+    throw new Error(
+      result.message ||
+      fallbackMessage
+    );
+
+  }
+
+
+  return result;
 };
 
 
@@ -50,17 +122,10 @@ export const getMemories =
 
 
     const result =
-      await response.json();
-
-
-    if (!response.ok) {
-
-      throw new Error(
-        result.message ||
+      await handleResponse(
+        response,
         "Failed to fetch memories"
       );
-
-    }
 
 
     return result.data;
@@ -100,17 +165,10 @@ export const uploadScreenshot =
 
 
     const result =
-      await response.json();
-
-
-    if (!response.ok) {
-
-      throw new Error(
-        result.message ||
+      await handleResponse(
+        response,
         "Upload failed"
       );
-
-    }
 
 
     return result.data;
@@ -145,17 +203,10 @@ export const saveReel =
 
 
     const result =
-      await response.json();
-
-
-    if (!response.ok) {
-
-      throw new Error(
-        result.message ||
+      await handleResponse(
+        response,
         "Failed to save Reel"
       );
-
-    }
 
 
     return result.data;
@@ -183,17 +234,10 @@ export const searchMemories =
 
 
     const result =
-      await response.json();
-
-
-    if (!response.ok) {
-
-      throw new Error(
-        result.message ||
+      await handleResponse(
+        response,
         "Search failed"
       );
-
-    }
 
 
     return result.data;
@@ -221,17 +265,10 @@ export const deleteMemory =
 
 
     const result =
-      await response.json();
-
-
-    if (!response.ok) {
-
-      throw new Error(
-        result.message ||
+      await handleResponse(
+        response,
         "Delete failed"
       );
-
-    }
 
 
     return result;

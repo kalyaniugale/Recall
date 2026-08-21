@@ -8,6 +8,7 @@ import UploadBox from "../components/UploadBox";
 import ReelBox from "../components/ReelBox";
 import MemoryGrid from "../components/MemoryGrid";
 import MemoryModal from "../components/MemoryModal";
+import Toast from "../components/Toast";
 
 import {
   getMemories,
@@ -32,6 +33,14 @@ function HomePage({
 
   const [loading, setLoading] =
     useState(true);
+
+
+  // ==========================================
+  // NETWORK STATUS
+  // ==========================================
+
+  const [isOnline, setIsOnline] =
+    useState(navigator.onLine);
 
 
   // ==========================================
@@ -75,6 +84,40 @@ function HomePage({
 
 
   // ==========================================
+  // TOAST
+  // ==========================================
+
+  const [toast, setToast] =
+    useState({
+      message: "",
+      type: "error",
+    });
+
+
+  const showToast = (
+    message,
+    type = "error"
+  ) => {
+
+    setToast({
+      message,
+      type,
+    });
+
+  };
+
+
+  const closeToast = () => {
+
+    setToast({
+      message: "",
+      type: "error",
+    });
+
+  };
+
+
+  // ==========================================
   // MODAL
   // ==========================================
 
@@ -94,11 +137,13 @@ function HomePage({
         memory.type === "reel"
     );
 
+
   const screenshots =
     memories.filter(
       (memory) =>
         memory.type === "screenshot"
     );
+
 
   const recentMemories =
     memories.slice(0, 6);
@@ -128,17 +173,93 @@ function HomePage({
         error
       );
 
+
+      // Don't show a second error when
+      // we already know the device is offline.
+
+      if (navigator.onLine) {
+
+        showToast(
+          error.message ||
+          "Couldn't load your memories."
+        );
+
+      }
+
     } finally {
 
       setLoading(false);
 
     }
+
   };
 
+
+  // ==========================================
+  // INITIAL LOAD
+  // ==========================================
 
   useEffect(() => {
 
     loadMemories();
+
+  }, []);
+
+
+  // ==========================================
+  // ONLINE / OFFLINE LISTENERS
+  // ==========================================
+
+  useEffect(() => {
+
+    const handleOnline = () => {
+
+      setIsOnline(true);
+
+      showToast(
+        "You're back online.",
+        "success"
+      );
+
+      // Refresh memories after
+      // connection returns.
+
+      loadMemories();
+
+    };
+
+
+    const handleOffline = () => {
+
+      setIsOnline(false);
+
+    };
+
+
+    window.addEventListener(
+      "online",
+      handleOnline
+    );
+
+    window.addEventListener(
+      "offline",
+      handleOffline
+    );
+
+
+    return () => {
+
+      window.removeEventListener(
+        "online",
+        handleOnline
+      );
+
+      window.removeEventListener(
+        "offline",
+        handleOffline
+      );
+
+    };
 
   }, []);
 
@@ -149,14 +270,32 @@ function HomePage({
 
   const handleUpload = async () => {
 
-    if (!selectedFile) {
+    if (!isOnline) {
+
+      showToast(
+        "You're offline. Connect to save a memory."
+      );
+
       return;
+
+    }
+
+
+    if (!selectedFile) {
+
+      showToast(
+        "Choose a screenshot first."
+      );
+
+      return;
+
     }
 
 
     try {
 
       setUploading(true);
+
 
       const memory =
         await uploadScreenshot(
@@ -175,6 +314,12 @@ function HomePage({
       setSelectedFile(null);
 
 
+      showToast(
+        "Screenshot remembered.",
+        "success"
+      );
+
+
     } catch (error) {
 
       console.error(
@@ -183,16 +328,18 @@ function HomePage({
       );
 
 
-      alert(
+      showToast(
         error.message ||
         "Couldn't keep that screenshot."
       );
+
 
     } finally {
 
       setUploading(false);
 
     }
+
   };
 
 
@@ -202,12 +349,29 @@ function HomePage({
 
   const handleSaveReel = async () => {
 
+    if (!isOnline) {
+
+      showToast(
+        "You're offline. Connect to save a Reel."
+      );
+
+      return;
+
+    }
+
+
     const url =
       reelUrl.trim();
 
 
     if (!url) {
+
+      showToast(
+        "Paste a Reel link first."
+      );
+
       return;
+
     }
 
 
@@ -217,11 +381,12 @@ function HomePage({
       )
     ) {
 
-      alert(
+      showToast(
         "Please paste a valid Instagram Reel link."
       );
 
       return;
+
     }
 
 
@@ -245,6 +410,12 @@ function HomePage({
       setReelUrl("");
 
 
+      showToast(
+        "Reel remembered.",
+        "success"
+      );
+
+
     } catch (error) {
 
       console.error(
@@ -253,16 +424,18 @@ function HomePage({
       );
 
 
-      alert(
+      showToast(
         error.message ||
         "Couldn't keep that Reel."
       );
+
 
     } finally {
 
       setSavingReel(false);
 
     }
+
   };
 
 
@@ -272,11 +445,23 @@ function HomePage({
 
   const handleSearch = async () => {
 
+    if (!isOnline) {
+
+      showToast(
+        "Search needs an internet connection."
+      );
+
+      return;
+
+    }
+
+
     if (!query.trim()) {
 
       await loadMemories();
 
       return;
+
     }
 
 
@@ -313,11 +498,19 @@ function HomePage({
         error
       );
 
+
+      showToast(
+        error.message ||
+        "Couldn't search your memories."
+      );
+
+
     } finally {
 
       setSearching(false);
 
     }
+
   };
 
 
@@ -328,6 +521,17 @@ function HomePage({
   const handleDelete = async (
     memoryId
   ) => {
+
+    if (!isOnline) {
+
+      showToast(
+        "You're offline. Connect before deleting a memory."
+      );
+
+      return;
+
+    }
+
 
     const confirmed =
       window.confirm(
@@ -358,7 +562,7 @@ function HomePage({
 
 
       // Close modal if the deleted
-      // memory is currently open
+      // memory is currently open.
 
       if (
         openedMemory?._id ===
@@ -370,6 +574,12 @@ function HomePage({
       }
 
 
+      showToast(
+        "Memory removed.",
+        "success"
+      );
+
+
     } catch (error) {
 
       console.error(
@@ -378,11 +588,13 @@ function HomePage({
       );
 
 
-      alert(
+      showToast(
+        error.message ||
         "Couldn't delete this memory."
       );
 
     }
+
   };
 
 
@@ -399,8 +611,6 @@ function HomePage({
       ====================================== */}
 
       <nav className="topbar">
-
-        {/* LEFT SIDE */}
 
         <div className="topbar-left">
 
@@ -420,8 +630,6 @@ function HomePage({
 
         </div>
 
-
-        {/* RIGHT SIDE - USER */}
 
         <div className="topbar-user">
 
@@ -469,6 +677,38 @@ function HomePage({
         </div>
 
       </nav>
+
+
+      {/* ======================================
+          OFFLINE BANNER
+      ====================================== */}
+
+      {!isOnline && (
+
+        <div className="offline-banner">
+
+          <span
+            className="offline-dot"
+          />
+
+
+          <div>
+
+            <strong>
+              You're offline
+            </strong>
+
+
+            <span>
+              Your memories will be here
+              when you're back.
+            </span>
+
+          </div>
+
+        </div>
+
+      )}
 
 
       {/* ======================================
@@ -558,8 +798,6 @@ function HomePage({
 
           <div className="capture-grid">
 
-            {/* SCREENSHOT */}
-
             <UploadBox
               selectedFile={
                 selectedFile
@@ -575,8 +813,6 @@ function HomePage({
               }
             />
 
-
-            {/* REEL */}
 
             <ReelBox
               reelUrl={
@@ -853,9 +1089,27 @@ function HomePage({
         }
       />
 
+
+      {/* ======================================
+          TOAST
+      ====================================== */}
+
+      <Toast
+        message={
+          toast.message
+        }
+        type={
+          toast.type
+        }
+        onClose={
+          closeToast
+        }
+      />
+
     </main>
 
   );
+
 }
 
 

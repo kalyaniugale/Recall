@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useState,
 } from "react";
 
@@ -33,7 +34,10 @@ function App() {
   );
 
 
-  // Successful login/register
+  // ==========================================
+  // SUCCESSFUL LOGIN / REGISTER
+  // ==========================================
+
   const handleAuthenticated = (
     loggedInUser
   ) => {
@@ -45,10 +49,14 @@ function App() {
     setAuthenticated(
       true
     );
+
   };
 
 
-  // Logout
+  // ==========================================
+  // LOGOUT
+  // ==========================================
+
   const handleLogout = () => {
 
     clearAuth();
@@ -58,8 +66,50 @@ function App() {
     setAuthenticated(
       false
     );
+
   };
 
+
+  // ==========================================
+  // EXPIRED / INVALID SESSION
+  // ==========================================
+
+  useEffect(() => {
+
+    const handleUnauthorized = () => {
+
+      clearAuth();
+
+      setUser(null);
+
+      setAuthenticated(
+        false
+      );
+
+    };
+
+
+    window.addEventListener(
+      "recall:unauthorized",
+      handleUnauthorized
+    );
+
+
+    return () => {
+
+      window.removeEventListener(
+        "recall:unauthorized",
+        handleUnauthorized
+      );
+
+    };
+
+  }, []);
+
+
+  // ==========================================
+  // AUTH PAGE
+  // ==========================================
 
   if (!authenticated) {
 
@@ -70,8 +120,13 @@ function App() {
         }
       />
     );
+
   }
 
+
+  // ==========================================
+  // HOME
+  // ==========================================
 
   return (
     <HomePage
@@ -81,6 +136,7 @@ function App() {
       }
     />
   );
+
 }
 
 

@@ -1879,3 +1879,1080 @@ main {
     padding: 7px 10px;
   }
 }
+
+/* =========================================================
+   RECALL — PWA / MOBILE POLISH
+   Keep this section LAST in the stylesheet
+========================================================= */
+
+
+/* =========================================================
+   PWA SAFE AREAS
+   Important on installed mobile apps / iPhones
+========================================================= */
+
+html {
+  background: #faf9f6;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  padding-top:
+    env(safe-area-inset-top);
+
+  padding-bottom:
+    env(safe-area-inset-bottom);
+
+  padding-left:
+    env(safe-area-inset-left);
+
+  padding-right:
+    env(safe-area-inset-right);
+}
+
+
+/* Prevent accidental horizontal overflow */
+
+html,
+body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+
+/* Better touch behavior */
+
+button,
+a,
+input {
+  -webkit-tap-highlight-color:
+    transparent;
+}
+
+
+/* =========================================================
+   TOPBAR — FINAL VERSION
+========================================================= */
+
+.topbar {
+  width: 100%;
+  max-width: 1120px;
+
+  height: auto;
+  min-height: 72px;
+
+  margin: 0 auto;
+  padding: 16px 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  border-bottom:
+    1px solid #ebe8e1;
+}
+
+
+.topbar-left {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+}
+
+
+.brand-mark {
+  flex-shrink: 0;
+
+  font-family:
+    "DM Serif Display",
+    serif;
+
+  font-size: 24px;
+  font-weight: 400;
+
+  letter-spacing: -0.4px;
+
+  color: #292824;
+}
+
+
+.topbar-note {
+  font-size: 12px;
+
+  color: #96928a;
+}
+
+
+.topbar-user {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+}
+
+
+.user-avatar {
+  width: 35px;
+  height: 35px;
+
+  flex-shrink: 0;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+
+  background: #eee9f7;
+
+  color: #675b82;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+
+.user-info {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  line-height: 1.3;
+}
+
+
+.user-name {
+  max-width: 130px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  color: #393532;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+
+.user-email {
+  max-width: 150px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  color: #99958d;
+
+  font-size: 10px;
+}
+
+
+.logout-button {
+  min-height: 38px;
+
+  padding: 0 12px;
+
+  flex-shrink: 0;
+
+  border:
+    1px solid #e4dfda;
+
+  border-radius: 9px;
+
+  background: transparent;
+
+  color: #746e68;
+
+  font-size: 11px;
+  font-weight: 500;
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .hero {
+    padding:
+      58px 0 55px;
+  }
+
+
+  .eyebrow {
+    margin-bottom: 12px;
+
+    font-size: 11px;
+  }
+
+
+  .hero h1 {
+    max-width: 360px;
+
+    font-size:
+      clamp(
+        38px,
+        11vw,
+        48px
+      );
+
+    line-height: 1.02;
+
+    letter-spacing: -1px;
+  }
+
+
+  .hero-copy {
+    max-width: 340px;
+
+    margin:
+      17px auto 27px;
+
+    font-size: 13px;
+    line-height: 1.65;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE SEARCH
+========================================================= */
+
+@media (max-width: 520px) {
+
+  .search-bar {
+    width: 100%;
+
+    min-height: 55px;
+
+    padding:
+      5px
+      5px
+      5px
+      14px;
+
+    border-radius: 14px;
+  }
+
+
+  .search-bar input {
+    font-size: 14px;
+  }
+
+
+  .search-bar button {
+    min-height: 43px;
+
+    padding: 0 15px;
+
+    border-radius: 10px;
+
+    font-size: 12px;
+  }
+
+}
+
+
+/* =========================================================
+   SECTIONS
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .capture-section,
+  .memory-section {
+    padding: 45px 0;
+  }
+
+
+  .section-heading {
+    margin-bottom: 22px;
+  }
+
+
+  .section-heading h2 {
+    font-size: 27px;
+    line-height: 1.15;
+  }
+
+
+  .section-kicker {
+    font-size: 10px;
+  }
+
+}
+
+
+/* =========================================================
+   CAPTURE CARDS
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .capture-grid {
+    grid-template-columns: 1fr;
+
+    gap: 13px;
+  }
+
+
+  .capture-card {
+    min-height: auto;
+
+    padding: 22px;
+
+    border-radius: 16px;
+  }
+
+
+  .capture-icon {
+    width: 38px;
+    height: 38px;
+
+    margin-bottom: 17px;
+  }
+
+
+  .capture-card-copy {
+    margin-bottom: 20px;
+  }
+
+
+  .capture-card-copy h3 {
+    font-size: 16px;
+  }
+
+}
+
+
+/* =========================================================
+   FILE INPUT — MOBILE
+========================================================= */
+
+@media (max-width: 520px) {
+
+  .file-input {
+    padding: 8px;
+
+    font-size: 11px;
+  }
+
+
+  .file-input::file-selector-button {
+    padding: 8px 10px;
+
+    margin-right: 8px;
+  }
+
+}
+
+
+/* =========================================================
+   REEL INPUT — MOBILE
+========================================================= */
+
+@media (max-width: 520px) {
+
+  .reel-input-area {
+    display: grid;
+
+    grid-template-columns: 1fr;
+  }
+
+
+  .reel-input {
+    width: 100%;
+    height: 46px;
+
+    font-size: 13px;
+  }
+
+
+  .capture-action {
+    width: 100%;
+
+    min-height: 46px;
+  }
+
+}
+
+
+/* =========================================================
+   MEMORY CARDS — TABLET
+========================================================= */
+
+@media (
+  min-width: 560px
+)
+and (
+  max-width: 900px
+) {
+
+  .memory-grid,
+  .memory-grid-reels,
+  .memory-grid-screenshots {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+
+  .memory-grid-reels
+  .memory-image-wrapper {
+    height: 360px;
+  }
+
+}
+
+
+/* =========================================================
+   MEMORY CARDS — PHONE
+========================================================= */
+
+@media (max-width: 559px) {
+
+  .memory-grid,
+  .memory-grid-reels,
+  .memory-grid-screenshots {
+    grid-template-columns: 1fr;
+
+    gap: 14px;
+  }
+
+
+  .memory-card {
+    border-radius: 14px;
+  }
+
+
+  .memory-image-wrapper {
+    height: 210px;
+  }
+
+
+  /*
+    Reels are vertical.
+    Keep them tall but not gigantic.
+  */
+
+  .memory-grid-reels
+  .memory-image-wrapper {
+    height: 390px;
+  }
+
+
+  .memory-grid-screenshots
+  .memory-image-wrapper {
+    height: 210px;
+  }
+
+
+  .memory-card-content {
+    padding: 15px;
+  }
+
+
+  .memory-card-content h3 {
+    font-size: 14px;
+  }
+
+
+  .memory-summary {
+    font-size: 12px;
+  }
+
+}
+
+
+/* =========================================================
+   MODAL — MOBILE APP FEEL
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .modal-backdrop {
+    padding: 0;
+
+    align-items: stretch;
+
+    background:
+      rgba(
+        30,
+        29,
+        25,
+        0.55
+      );
+  }
+
+
+  .memory-modal {
+    width: 100%;
+    height: 100%;
+
+    max-height: none;
+
+    margin: 0;
+
+    display: block;
+
+    overflow-y: auto;
+
+    border: none;
+    border-radius: 0;
+
+    box-shadow: none;
+  }
+
+
+  .modal-image {
+    width: 100%;
+
+    min-height: auto;
+    max-height: 48vh;
+  }
+
+
+  .modal-image img {
+    width: 100%;
+    max-height: 48vh;
+
+    object-fit: contain;
+  }
+
+
+  .modal-details {
+    padding:
+      30px
+      20px
+      calc(
+        28px +
+        env(
+          safe-area-inset-bottom
+        )
+      );
+  }
+
+
+  .modal-details h2 {
+    font-size: 26px;
+  }
+
+
+  .modal-close {
+    position: fixed;
+
+    top:
+      calc(
+        12px +
+        env(
+          safe-area-inset-top
+        )
+      );
+
+    right: 12px;
+
+    width: 38px;
+    height: 38px;
+
+    background:
+      rgba(
+        255,
+        255,
+        255,
+        0.96
+      );
+  }
+
+}
+
+
+/* =========================================================
+   AUTH — INSTALLED APP / PHONE
+========================================================= */
+
+@media (max-width: 520px) {
+
+  .auth-page {
+    min-height: 100vh;
+    min-height: 100dvh;
+
+    padding:
+      calc(
+        20px +
+        env(
+          safe-area-inset-top
+        )
+      )
+      16px
+      calc(
+        20px +
+        env(
+          safe-area-inset-bottom
+        )
+      );
+  }
+
+
+  .auth-card {
+    max-width: 390px;
+
+    padding:
+      28px 21px;
+
+    border-radius: 19px;
+  }
+
+
+  .auth-brand {
+    margin-bottom: 23px;
+  }
+
+
+  .auth-brand h1 {
+    font-size: 31px;
+  }
+
+
+  .auth-brand p {
+    font-size: 13px;
+  }
+
+
+  .auth-tabs {
+    margin-bottom: 22px;
+  }
+
+
+  .auth-tabs button {
+    min-height: 42px;
+
+    padding: 8px;
+
+    font-size: 13px;
+  }
+
+
+  .auth-form {
+    gap: 16px;
+  }
+
+
+  .auth-form input {
+    min-height: 47px;
+
+    /*
+      16px prevents iOS Safari
+      from zooming when input gains focus.
+    */
+
+    font-size: 16px;
+  }
+
+
+  .auth-submit {
+    min-height: 48px;
+  }
+
+}
+
+
+/* =========================================================
+   TOPBAR — PHONE
+========================================================= */
+
+@media (max-width: 650px) {
+
+  .topbar {
+    min-height: 64px;
+
+    padding: 12px 0;
+  }
+
+
+  .topbar-divider,
+  .topbar-note,
+  .user-info {
+    display: none;
+  }
+
+
+  .brand-mark {
+    font-size: 22px;
+  }
+
+
+  .user-avatar {
+    width: 34px;
+    height: 34px;
+  }
+
+
+  .logout-button {
+    min-height: 36px;
+
+    padding: 0 10px;
+  }
+
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+========================================================= */
+
+@media (max-width: 370px) {
+
+  main {
+    width:
+      calc(
+        100% - 22px
+      );
+  }
+
+
+  .hero {
+    padding:
+      48px 0;
+  }
+
+
+  .hero h1 {
+    font-size: 35px;
+  }
+
+
+  .section-heading h2 {
+    font-size: 24px;
+  }
+
+
+  .capture-card {
+    padding: 19px;
+  }
+
+
+  .memory-grid-reels
+  .memory-image-wrapper {
+    height: 350px;
+  }
+
+}
+
+
+/* =========================================================
+   PWA STANDALONE MODE
+========================================================= */
+
+/*
+  Only applies when Recall is running
+  as an installed PWA.
+*/
+
+@media (
+  display-mode: standalone
+) {
+
+  body {
+    overscroll-behavior-y:
+      contain;
+  }
+
+
+  .topbar {
+    padding-top:
+      max(
+        16px,
+        env(
+          safe-area-inset-top
+        )
+      );
+  }
+
+
+  /*
+    Makes controls feel more like
+    an installed application.
+  */
+
+  button,
+  a {
+    user-select: none;
+  }
+
+}
+
+
+/* =========================================================
+   TOUCH DEVICES
+========================================================= */
+
+@media (
+  hover: none
+)
+and (
+  pointer: coarse
+) {
+
+  /*
+    Disable desktop hover movement.
+    On touch screens these animations
+    can feel strange.
+  */
+
+  .memory-card:hover,
+  .capture-card:hover,
+  .search-bar:focus-within,
+  .capture-action:hover,
+  .reel-open-button:hover {
+    transform: none;
+  }
+
+
+  /*
+    Comfortable touch targets
+  */
+
+  .delete-button {
+    min-width: 44px;
+    min-height: 36px;
+  }
+
+
+  .text-button {
+    min-height: 40px;
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (
+  prefers-reduced-motion: reduce
+) {
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+
+    animation-duration:
+      0.01ms !important;
+
+    animation-iteration-count:
+      1 !important;
+
+    transition-duration:
+      0.01ms !important;
+  }
+
+}
+
+/* =========================================================
+   OFFLINE STATUS
+========================================================= */
+
+.offline-banner {
+  width: min(
+    1120px,
+    calc(100% - 32px)
+  );
+
+  margin: 14px auto 0;
+
+  padding: 11px 14px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  border:
+    1px solid #e8dfca;
+
+  border-radius: 12px;
+
+  background: #fffaf0;
+
+  color: #655e50;
+}
+
+
+.offline-dot {
+  width: 7px;
+  height: 7px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: #b59a64;
+}
+
+
+.offline-banner > div {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+}
+
+
+.offline-banner strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+
+.offline-banner span {
+  font-size: 11px;
+
+  color: #928878;
+}
+
+
+@media (max-width: 520px) {
+
+  .offline-banner {
+    width:
+      calc(100% - 24px);
+
+    margin-top: 8px;
+
+    padding: 10px 12px;
+  }
+
+
+  .offline-banner > div {
+    align-items: flex-start;
+    flex-direction: column;
+
+    gap: 1px;
+  }
+
+}
+
+/* ==========================================
+   TOAST
+========================================== */
+
+.toast {
+  position: fixed;
+
+  right: 24px;
+  bottom: 24px;
+
+  z-index: 9999;
+
+  max-width: 360px;
+
+  padding: 12px 14px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  background: #fff;
+
+  border: 1px solid #e7e3dc;
+  border-radius: 12px;
+
+  box-shadow:
+    0 8px 30px rgba(40, 37, 32, 0.12);
+
+  color: #45413c;
+
+  font-size: 13px;
+
+  animation: toast-in 0.2s ease;
+}
+
+
+.toast-icon {
+  width: 24px;
+  height: 24px;
+
+  flex-shrink: 0;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+
+.toast-error .toast-icon {
+  background: #f8e7e5;
+  color: #a6534d;
+}
+
+
+.toast-success .toast-icon {
+  background: #e8f2e9;
+  color: #55785a;
+}
+
+
+.toast button {
+  margin-left: auto;
+
+  border: none;
+  background: transparent;
+
+  color: #aaa49c;
+
+  font-size: 18px;
+
+  cursor: pointer;
+}
+
+
+@keyframes toast-in {
+
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+}
+
+
+@media (max-width: 520px) {
+
+  .toast {
+    left: 16px;
+    right: 16px;
+    bottom:
+      calc(
+        16px +
+        env(safe-area-inset-bottom)
+      );
+
+    max-width: none;
+  }
+
+}
